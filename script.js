@@ -54,6 +54,28 @@ function displayImages(images) {
     });
 }
 
+// Function to Show Image Details - Show the full-size image and its details in the modal when a thumbnail is clicked.
+function showImageDetails(image) {
+    fetch('https://images-api.nasa.gov/search?q={apiKey}&media_type=image')
+        .then(response => response.json())
+        .then(data => {
+            // Process the fetched image details
+            if(data.Response === 'True') {
+              modalTitle.textContent = data.Title;
+              modalYear.textContent = data.Year;
+              modalDescription.textContent = data.Plot;
+              modalImage.src = data.Poster;
+              modal.style.display = 'block';
+            } else {
+              alert('Error fetching image details:', data.Error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching image details:', error);
+            alert('An error occurred while fetching image details. Please try again later.');
+        });
+}
+
 // Open Modal - Open the modal to display the full-size image and its details when a thumbnail is clicked.
 function openModal(imageUrl, title, description) {
     modalImage.src = imageUrl;
