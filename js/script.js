@@ -38,6 +38,14 @@ function showImageModal(imageData) {
       }
     });
   }
+// Close modal
+modalCloseButton.addEventListener('click', () => {
+  modalImage.src = '';
+  modalTitle.textContent = '';
+  modalDate.textContent = '';
+  modalYear.textContent = '';
+  modalExplanation.textContent = '';
+});
 
 // Load images when the button is clicked.
 getImagesButton.addEventListener('click', () => {
