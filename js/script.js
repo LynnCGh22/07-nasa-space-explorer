@@ -21,6 +21,7 @@ const modalDate = document.getElementById('modalDate');
 const modalYear = document.getElementById('modalYear');
 const modalExplanation = document.getElementById('modalExplanation');
 const modalCloseButton = document.getElementById('modalCloseButton');
+const modalVideo = document.getElementById('modalVideo');
 
 // Function to render the gallery with images
 function renderGallery(items) {
@@ -39,6 +40,15 @@ function renderGallery(items) {
     `;
     return;
   }
+
+  //Check if we have any videos 
+  if (items.some((item) => item.media_type === 'video')) {
+    gallery.innerHTML += `
+      <div class="placeholder">
+        <p>Some entries in this date range are videos. Click on an image to see details.</p>
+      </div>
+    `;
+  } 
   
   // Loop through each image and create a gallery item
   imageItems.forEach((item) => {
@@ -88,6 +98,14 @@ async function fetchAndRenderApodImages() {
       </div>
     `;
     return;
+  }
+  // Check each date range to see if there are any APOD video entries, and if so, show a message to the user that some entries are videos and they can click on an image to see details
+  if(apodData.some((item) => item.media_type === 'video')) {
+    gallery.innerHTML = `
+      <div class="placeholder">
+        <p>Some entries in this date range are videos. Click on an image to see details.</p>
+      </div>
+    `;
   }
   
   // Show loading message
