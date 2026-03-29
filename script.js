@@ -10,8 +10,11 @@ const imageResults = document.getElementById('image-results');
 const modal = document.getElementById('image-modal');
 const modalImage = document.getElementById('modal-image');
 const modalTitle = document.getElementById('modal-title');
+const modalYear = document.getElementById('modal-year');
 const modalDescription = document.getElementById('modal-description');
 const closeModalButton = document.getElementById('close-modal');
+const modalContent = document.querySelector('.modal-content');
+const modalBody = document.querySelector('.modal-body');
 
 // Event Listener for Search Form - Listen for the form submission to trigger the search for NASA images based on the year entered by the user.
 searchForm.addEventListener('submit', async (event) => {
