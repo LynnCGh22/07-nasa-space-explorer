@@ -50,3 +50,23 @@ function displayImages(images) {
         imageResults.appendChild(imgElement);
     });
 }
+
+// Open Modal - Open the modal to display the full-size image and its details when a thumbnail is clicked.
+function openModal(imageUrl, title, description) {
+    modalImage.src = imageUrl;
+    modalTitle.textContent = title;
+    modalDescription.textContent = description;
+    modal.style.display = 'block';
+}
+
+// Close Modal - Listen for the close button click to close the modal.
+closeModalButton.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+// Close Modal on Outside Click - Listen for clicks outside the modal to close it.
+window.addEventListener('click', (event) => {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+});
