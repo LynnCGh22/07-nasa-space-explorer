@@ -13,6 +13,12 @@ setupDateInputs(startInput, endInput);
 // Find the button and gallery container on the page
 const getImagesButton = document.getElementById('getImagesButton');
 const gallery = document.getElementById('gallery');
+// Display Image Elements (Year, Title, Explanation, etc.)
+const ImageYear = document.getElementById('ImageYear');
+const ImageTitle = document.getElementById('ImageTitle');
+const ImageExplanation = document.getElementById('ImageExplanation');
+const ImageURL = document.getElementById('ImageURL');
+const ImageMediaType = document.getElementById('ImageMediaType');
 
 
 // Load images when the button is clicked.
