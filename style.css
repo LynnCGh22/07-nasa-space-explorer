@@ -130,6 +130,19 @@ button:hover {
   font-size: 14px;
 }
 
+.details-button {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid #d0d0d0;
+  background: #efefef;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.details-button:hover {
+  background: #e1e1e1;
+}
+
 /* Placeholder content */
 .placeholder {
   flex: 1 1 100%;
@@ -141,4 +154,53 @@ button:hover {
 .placeholder-icon {
   font-size: 48px;
   margin-bottom: 20px;
+}
+
+/* Modal styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.modal-content {
+  max-width: 900px;
+  margin: 40px auto;
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: #333;
+  cursor: pointer;
+}
+
+#modal-image {
+  width: 100%;
+  max-height: 65vh;
+  object-fit: contain;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+#modal-title {
+  margin-bottom: 8px;
+}
+
+#modal-year {
+  color: #555;
+  margin-bottom: 10px;
 }

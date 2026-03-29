@@ -1,150 +1,185 @@
-// script.js
+// NASA's APOD API has data from June 16, 1995 onwards.
+const earliestDate = '1995-06-16';
+const today = new Date().toISOString().split('T')[0];
 
-const apiKey = '4wfLNaAe3mRo64uI1gj9LgvbJQbeyJ5kmWIb4iOM'; // Replace with your OMDb API key
-// DOM Elements - Obtain the year input in the search form to display NASA images based on the year entered by the user.
-const searchForm = document.getElementById('search-form');
-const searchInput = document.getElementById('year-input');
-const imageResults = document.getElementById('image-results');
-
-// Modal Elements - Obtain the modal elements to display the full-size image and its details when a thumbnail is clicked.
+// Find page elements.
+const startInput = document.getElementById('startDate');
+const endInput = document.getElementById('endDate');
+const getImagesButton = document.querySelector('.filters button');
+const gallery = document.getElementById('gallery');
 const modal = document.getElementById('image-modal');
 const modalImage = document.getElementById('modal-image');
 const modalTitle = document.getElementById('modal-title');
 const modalYear = document.getElementById('modal-year');
 const modalDescription = document.getElementById('modal-description');
 const closeModalButton = document.getElementById('close-modal');
-const modalContent = document.querySelector('.modal-content');
-const modalBody = document.querySelector('.modal-body');
 
-// Event Listener for Search Form - Listen for the form submission to trigger the search for NASA images based on the year entered by the user.
-searchForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const year = searchInput.value.trim();
-    if (year) {
-        await fetchNasaImages(year);
-    }
+// Keeping your "searchInput" style so Enter-key logic matches your original approach.
+const searchInput = startInput;
+
+// NASA API key (restored from your original file).
+// You can switch to 'DEMO_KEY' if needed.
+const nasaApiKey = '4wfLNaAe3mRo64uI1gj9LgvbJQbeyJ5kmWIb4iOM';
+
+// Set date limits and default range (last 9 days including today).
+setupDateInputs(startInput, endInput);
+
+// Click the button to fetch images.
+getImagesButton.addEventListener('click', () => {
+	fetchAndRenderApodImages();
 });
 
-// Fetch NASA Images - Fetch images from the NASA API based on the year entered by the user and display them as thumbnails.
-async function fetchNasaImages(year) {
-    try {
-        const response = await fetch(`https://images-api.nasa.gov/search?q=${year}&media_type=image`);
-        const data = await response.json();
-        displayImages(data.collection.items);
-    } catch (error) {
-        console.error('Error fetching NASA images:', error);
-    }
-}
-
-// Display Images - Display the fetched NASA images as thumbnails in the image results section.
-function displayImages(images) {
-    imageResults.innerHTML = '';
-    images.forEach(image => {
-        const thumbnailUrl = image.links[0].href;
-        const title = image.data[0].title;
-        const description = image.data[0].description;
-
-        const imgElement = document.createElement('img');
-        imgElement.src = thumbnailUrl;
-        imgElement.alt = title;
-        imgElement.classList.add('thumbnail');
-        imgElement.addEventListener('click', () => openModal(thumbnailUrl, title, description));
-
-        imageResults.appendChild(imgElement);
-    });
-}
-
-// Function to Show Image Details - Show the full-size image and its details in the modal when a thumbnail is clicked.
-function showImageDetails(image) {
-    fetch('https://images-api.nasa.gov/search?q={apiKey}&media_type=image')
-        .then(response => response.json())
-        .then(data => {
-            // Process the fetched image details
-            if(data.Response === 'True') {
-              modalTitle.textContent = data.Title;
-              modalYear.textContent = data.Year;
-              modalDescription.textContent = data.Plot;
-              modalImage.src = data.Poster;
-              modal.style.display = 'block';
-            } else {
-              alert('Error fetching image details:', data.Error);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching image details:', error);
-            alert('An error occurred while fetching image details. Please try again later.');
-        });
-}
-
-// Open Modal - Open the modal to display the full-size image and its details when a thumbnail is clicked.
-function openModal(imageUrl, title, description) {
-    modalImage.src = imageUrl;
-    modalTitle.textContent = title;
-    modalDescription.textContent = description;
-    modal.style.display = 'block';
-}
-
-// Close Modal - Listen for the close button click to close the modal.
-closeModalButton.addEventListener('click', () => {
-    modal.style.display = 'none';
-});
-
-// Close Modal on Outside Click - Listen for clicks outside the modal to close it.
-window.addEventListener('click', (event) => {
-    if (event.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-
-// Close Modal on Escape Key Press - Listen for the Escape key press to close the modal.
-window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-        modal.style.display = 'none';
-    }
-});
-
-// Allow function renderImages to include details of the image such as title, year, and description in the modal when a thumbnail is clicked.
-function renderImages(images) {
-    imageResults.innerHTML = '';
-    images.forEach(image => {
-        const thumbnailUrl = image.links[0].href;
-        const title = image.data[0].title;
-        const description = image.data[0].description;
-
-        const imgElement = document.createElement('img');
-        const card = document.createElement('div');
-        card.className = 'search-result-card';
-        card.innerHTML = `
-            <img src="${thumbnailUrl}" alt="${title}" class="thumbnail">
-            <div class="card-content">
-              <button class="btn-details">Details</button>
-                <h3>${title}</h3>
-                <p>${description}</p>
-
-            </div>
-        `;
-        imgElement.src = thumbnailUrl;
-        imgElement.alt = title;
-        imgElement.classList.add('thumbnail');
-        imgElement.addEventListener('click', () => openModal(thumbnailUrl, title, description));
-
-        imageResults.appendChild(imgElement);
-    });
-}
-
-// Allow the "Get Images" button to be triggered by clicking the button.
-searchForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const year = searchInput.value.trim();
-    if (year) {
-        fetchNasaImages(year);
-    }
-});
-
-// Allow the "Get Images" button to be triggered by pressing the Enter key when the year input field is focused.
+// Press Enter in either date input to fetch images.
 searchInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        searchForm.dispatchEvent(new Event('submit'));
-    }
+	if (event.key === 'Enter') {
+		event.preventDefault();
+		fetchAndRenderApodImages();
+	}
 });
+
+endInput.addEventListener('keydown', (event) => {
+	if (event.key === 'Enter') {
+		event.preventDefault();
+		fetchAndRenderApodImages();
+	}
+});
+
+// Close modal interactions.
+closeModalButton.addEventListener('click', () => {
+	modal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+	if (event.target === modal) {
+		modal.style.display = 'none';
+	}
+});
+
+window.addEventListener('keydown', (event) => {
+	if (event.key === 'Escape') {
+		modal.style.display = 'none';
+	}
+});
+
+// Show the default date range on page load.
+fetchAndRenderApodImages();
+
+function setupDateInputs(startDateInput, endDateInput) {
+	startDateInput.min = earliestDate;
+	startDateInput.max = today;
+	endDateInput.min = earliestDate;
+	endDateInput.max = today;
+
+	const lastWeek = new Date();
+	lastWeek.setDate(lastWeek.getDate() - 8);
+	startDateInput.value = lastWeek.toISOString().split('T')[0];
+	endDateInput.value = today;
+
+	startDateInput.addEventListener('change', () => {
+		const startDate = new Date(startDateInput.value);
+		const endDate = new Date(startDate);
+		endDate.setDate(startDate.getDate() + 8);
+
+		endDateInput.value =
+			endDate > new Date(today) ? today : endDate.toISOString().split('T')[0];
+	});
+}
+
+async function fetchAndRenderApodImages() {
+	const startDate = startInput.value;
+	const endDate = endInput.value;
+
+	if (!startDate || !endDate) {
+		gallery.innerHTML = `
+			<div class="placeholder">
+				<p>Please select both start and end dates.</p>
+			</div>
+		`;
+		return;
+	}
+
+	gallery.innerHTML = `
+		<div class="placeholder">
+			<p>Loading NASA images...</p>
+		</div>
+	`;
+
+	const url = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&start_date=${startDate}&end_date=${endDate}`;
+
+	try {
+		const response = await fetch(url);
+
+		if (!response.ok) {
+			throw new Error(`Request failed with status ${response.status}`);
+		}
+
+		const apodData = await response.json();
+		const items = Array.isArray(apodData) ? apodData : [apodData];
+
+		items.sort((a, b) => new Date(b.date) - new Date(a.date));
+		renderGallery(items);
+	} catch (error) {
+		console.error('Error fetching APOD images:', error);
+		gallery.innerHTML = `
+			<div class="placeholder">
+				<p>Sorry, we could not load images right now. Please try again.</p>
+			</div>
+		`;
+	}
+}
+
+function renderGallery(items) {
+	const imageItems = items.filter((item) => item.media_type === 'image');
+
+	if (imageItems.length === 0) {
+		gallery.innerHTML = `
+			<div class="placeholder">
+				<p>No image results in this date range. Try different dates.</p>
+			</div>
+		`;
+		return;
+	}
+
+	gallery.innerHTML = '';
+
+	imageItems.forEach((item) => {
+		const card = document.createElement('article');
+		card.className = 'gallery-item';
+
+		card.innerHTML = `
+			<img src="${item.url}" alt="${item.title}">
+			<p><strong>${item.title}</strong></p>
+			<p>${item.date}</p>
+			<p>${item.explanation}</p>
+			<button class="details-button" type="button">Show Details</button>
+		`;
+
+		const cardImage = card.querySelector('img');
+		const detailsButton = card.querySelector('.details-button');
+
+		cardImage.addEventListener('click', () => {
+			ShowImageDetails(item);
+		});
+
+		detailsButton.addEventListener('click', () => {
+			ShowImageDetails(item);
+		});
+
+		gallery.appendChild(card);
+	});
+}
+
+// Show image details in the modal.
+function ShowImageDetails(image) {
+	modalImage.src = image.hdurl || image.url;
+	modalImage.alt = image.title;
+	modalTitle.textContent = image.title;
+	modalYear.textContent = image.date;
+	modalDescription.textContent = image.explanation;
+	modal.style.display = 'block';
+}
+
+// Keep a lower-case alias so either function name works.
+function showImageDetails(image) {
+	ShowImageDetails(image);
+}
