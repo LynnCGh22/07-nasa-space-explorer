@@ -10,6 +10,7 @@ body {
   font-family: Arial, sans-serif;
   background-color: #f1f1f1;
   padding: 20px;
+  color: #1e1e1e;
 }
 
 /* Centered container */
@@ -18,11 +19,18 @@ body {
   margin: 0 auto;
 }
 
+main {
+  width: 100%;
+}
+
 /* Header */
 .site-header {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  text-align: center;
   padding-top: 20px;
   padding-bottom: 20px;
   margin-bottom: 20px;
@@ -36,8 +44,11 @@ h1 {
 
 /* Logo */
 .logo {
-  width: 140px;
-  margin-right: 15px;
+  width: clamp(90px, 18vw, 140px);
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
 }
 
 /* Date‐picker & button row */
@@ -47,7 +58,20 @@ h1 {
   gap: 10px;
   justify-content: center;
   margin-bottom: 20px;
-  padding: 0 20px;
+  padding: 0;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303030;
 }
 
 /* Inputs and buttons */
@@ -64,26 +88,44 @@ button {
   width: 100%;
 }
 
+button,
+.gallery-item,
+.close {
+  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+}
+
+button:focus-visible,
+input[type="date"]:focus-visible,
+.gallery-item:focus-visible,
+.close:focus-visible,
+a:focus-visible {
+  outline: 3px solid #0b3d91;
+  outline-offset: 2px;
+}
+
 /* Button specific */
 button {
-  background-color: #d3d3d3;
-  color: black;
+  background-color: #0b3d91;
+  color: #ffffff;
+  border-color: #0b3d91;
   cursor: pointer;
 }
 button:hover {
-  background-color: #bfbfbf;
+  background-color: #092e6f;
 }
 
 /* Stack horizontally on wider screens */
 @media (min-width: 600px) {
   .filters {
-    flex-direction: row;
-    padding: 0;
+    display: grid;
+    grid-template-columns: minmax(170px, 1fr) minmax(170px, 1fr) auto;
+    align-items: end;
+    gap: 12px;
   }
-  
+
   input[type="date"],
   button {
-    width: auto;
+    width: 100%;
   }
 }
 
@@ -99,7 +141,7 @@ button:hover {
 /* Gallery items */
 .gallery-item {
   flex: 1 1 100%;  /* full width by default */
-  min-width: 280px;
+  min-width: 240px;
   max-width: 500px;
   background: white;
   padding: 10px;
@@ -118,6 +160,12 @@ button:hover {
 }
 
 /* Three columns on wider screens */
+@media (min-width: 700px) {
+  .gallery-item {
+    flex: 0 1 calc(50% - 20px);
+  }
+}
+
 @media (min-width: 1000px) {
   .gallery-item {
     flex: 0 1 31%;
@@ -180,6 +228,7 @@ button:hover {
   margin: 5% auto;
   padding: 30px;
   border-radius: 8px;
+  width: min(94vw, 800px);
   max-width: 800px;
   max-height: 90vh;
   overflow-y: auto;
@@ -210,6 +259,8 @@ button:hover {
   color: #999;
   cursor: pointer;
   line-height: 1;
+  border: 0;
+  background: transparent;
 }
 
 .close:hover {
@@ -231,4 +282,24 @@ button:hover {
   border-radius: 4px;
   background: #fff4d6;
   color: #5c4300;
+}
+
+@media (max-width: 599px) {
+  body {
+    padding: 12px;
+  }
+
+  .gallery {
+    padding: 10px 0;
+    gap: 12px;
+  }
+
+  .modal-content {
+    margin: 3% auto;
+    padding: 16px;
+  }
+
+  .modal-video {
+    height: 220px;
+  }
 }

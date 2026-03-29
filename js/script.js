@@ -85,6 +85,9 @@ function renderGallery(items) {
   items.forEach((item) => {
     const galleryItem = document.createElement('div');
     galleryItem.className = 'gallery-item';
+    galleryItem.setAttribute('tabindex', '0');
+    galleryItem.setAttribute('role', 'button');
+    galleryItem.setAttribute('aria-label', `${item.title} from ${item.date}. Open details`);
 
     // Use image URL for images and thumbnail URL for videos when available
     const previewUrl = item.media_type === 'video' ? item.thumbnail_url : item.url;
@@ -106,6 +109,14 @@ function renderGallery(items) {
   document.querySelectorAll('.gallery-item').forEach((item, index) => {
     item.addEventListener('click', () => {
       showMediaModal(items[index]);
+    });
+
+    // Support keyboard users: Enter and Space open the selected item.
+    item.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        showMediaModal(items[index]);
+      }
     });
   });
 }
@@ -153,6 +164,7 @@ function showMediaModal(mediaData) {
   
   // Show the modal
   imageModal.style.display = 'block';
+  modalCloseButton.focus();
 }
 
 // Helper function to close modal and stop any playing video
@@ -231,6 +243,13 @@ modalCloseButton.addEventListener('click', () => {
 // Close modal when clicking outside the modal content
 window.addEventListener('click', (event) => {
   if (event.target === imageModal) {
+    closeModal();
+  }
+});
+
+// Close modal with Escape key for keyboard accessibility
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && imageModal.style.display === 'block') {
     closeModal();
   }
 });
