@@ -52,6 +52,8 @@ getImagesButton.addEventListener('click', () => {
   fetchAndRenderApodImages();
 });
 
+// Update renderImages to include details buttons
+
 // Optional: load images immediately for the default date range.
 fetchAndRenderApodImages();
 
