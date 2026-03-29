@@ -103,6 +103,35 @@ window.addEventListener('keydown', (event) => {
     }
 });
 
+// Allow function renderImages to include details of the image such as title, year, and description in the modal when a thumbnail is clicked.
+function renderImages(images) {
+    imageResults.innerHTML = '';
+    images.forEach(image => {
+        const thumbnailUrl = image.links[0].href;
+        const title = image.data[0].title;
+        const description = image.data[0].description;
+
+        const imgElement = document.createElement('img');
+        const card = document.createElement('div');
+        card.className = 'search-result-card';
+        card.innerHTML = `
+            <img src="${thumbnailUrl}" alt="${title}" class="thumbnail">
+            <div class="card-content">
+              <button class="btn-details">Details</button>
+                <h3>${title}</h3>
+                <p>${description}</p>
+
+            </div>
+        `;
+        imgElement.src = thumbnailUrl;
+        imgElement.alt = title;
+        imgElement.classList.add('thumbnail');
+        imgElement.addEventListener('click', () => openModal(thumbnailUrl, title, description));
+
+        imageResults.appendChild(imgElement);
+    });
+}
+
 // Allow the "Get Images" button to be triggered by clicking the button.
 searchForm.addEventListener('submit', (event) => {
     event.preventDefault();
