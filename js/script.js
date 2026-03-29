@@ -14,11 +14,12 @@ setupDateInputs(startInput, endInput);
 const getImagesButton = document.getElementById('getImagesButton');
 const gallery = document.getElementById('gallery');
 // Display Image Elements (Year, Title, Explanation, etc.)
-const ImageYear = document.getElementById('ImageYear');
-const ImageTitle = document.getElementById('ImageTitle');
-const ImageExplanation = document.getElementById('ImageExplanation');
-const ImageURL = document.getElementById('ImageURL');
-const ImageMediaType = document.getElementById('ImageMediaType');
+const modalImage = document.getElementById('modalImage');
+const modalTitle = document.getElementById('modalTitle');
+const modalDate = document.getElementById('modalDate');
+const modalYear = document.getElementById('modalYear');
+const modalExplanation = document.getElementById('modalExplanation');
+const modalCloseButton = document.getElementById('modalCloseButton');
 
 
 // Load images when the button is clicked.
