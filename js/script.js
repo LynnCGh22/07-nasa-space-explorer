@@ -23,6 +23,11 @@ const modalExplanation = document.getElementById('modalExplanation');
 const modalCloseButton = document.getElementById('modalCloseButton');
 const modalVideo = document.getElementById('modalVideo');
 
+// Helper function to count how many APOD entries are videos
+function countVideoEntries(items) {
+  return items.filter((item) => item.media_type === 'video').length;
+}
+
 // Function to render the gallery with images
 function renderGallery(items) {
   // Clear the gallery
@@ -41,11 +46,12 @@ function renderGallery(items) {
     return;
   }
 
-  //Check if we have any videos 
-  if (items.some((item) => item.media_type === 'video')) {
+  // Show a note when the selected date range includes videos
+  const videoCount = countVideoEntries(items);
+  if (videoCount > 0) {
     gallery.innerHTML += `
       <div class="placeholder">
-        <p>Some entries in this date range are videos. Click on an image to see details.</p>
+        <p>${videoCount} entr${videoCount === 1 ? 'y is' : 'ies are'} video${videoCount === 1 ? '' : 's'} in this date range. Click an image to see details.</p>
       </div>
     `;
   } 
@@ -99,15 +105,6 @@ async function fetchAndRenderApodImages() {
     `;
     return;
   }
-  // Check each date range to see if there are any APOD video entries, and if so, show a message to the user that some entries are videos and they can click on an image to see details
-  if(apodData.some((item) => item.media_type === 'video')) {
-    gallery.innerHTML = `
-      <div class="placeholder">
-        <p>Some entries in this date range are videos. Click on an image to see details.</p>
-      </div>
-    `;
-  }
-  
   // Show loading message
   gallery.innerHTML = `
     <div class="placeholder">
