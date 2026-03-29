@@ -13,6 +13,8 @@ setupDateInputs(startInput, endInput);
 // Find the button and gallery container on the page
 const getImagesButton = document.getElementById('getImagesButton');
 const gallery = document.getElementById('gallery');
+const spaceFactText = document.getElementById('spaceFactText');
+const spaceFactLink = document.getElementById('spaceFactLink');
 // Display Image Elements (Year, Title, Explanation, etc.)
 const imageModal = document.getElementById('imageModal');
 const modalImage = document.getElementById('modalImage');
@@ -175,6 +177,47 @@ function closeModal() {
   modalVideoLinkWrap.style.display = 'none';
 }
 
+// Helper function to shorten long APOD explanations into a quick fun fact
+function buildFunFactFromExplanation(explanationText) {
+  const firstSentence = explanationText.split('. ')[0]?.trim();
+
+  if (!firstSentence) {
+    return 'Space is full of amazing discoveries from NASA every day!';
+  }
+
+  return firstSentence.endsWith('.') ? firstSentence : `${firstSentence}.`;
+}
+
+// Function to fetch one random APOD entry and display a fun fact
+async function fetchAndRenderSpaceFact() {
+  const factApiUrl = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&count=1`;
+
+  try {
+    const response = await fetch(factApiUrl);
+
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+
+    const apodFactData = await response.json();
+    const randomEntry = Array.isArray(apodFactData) ? apodFactData[0] : null;
+
+    if (!randomEntry || !randomEntry.explanation) {
+      throw new Error('No fun fact available right now');
+    }
+
+    const funFact = buildFunFactFromExplanation(randomEntry.explanation);
+    spaceFactText.textContent = funFact;
+
+    // Link directly to the API endpoint for the exact APOD date used in this fact.
+    spaceFactLink.href = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&date=${randomEntry.date}`;
+  } catch (error) {
+    console.error('Error fetching space fact:', error);
+    spaceFactText.textContent = 'Could not load a space fact right now. Try refreshing the page!';
+    spaceFactLink.href = 'https://api.nasa.gov/planetary/apod';
+  }
+}
+
 // Function to fetch and render images from NASA APOD API
 async function fetchAndRenderApodImages() {
   const startDate = startInput.value;
@@ -256,5 +299,8 @@ window.addEventListener('keydown', (event) => {
 
 // Load images immediately for the default date range when the page loads
 fetchAndRenderApodImages();
+
+// Load a fun space fact when the page loads
+fetchAndRenderSpaceFact();
 
 

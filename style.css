@@ -211,6 +211,33 @@ button:hover {
   margin-bottom: 20px;
 }
 
+/* Did you know section */
+.did-you-know {
+  background: #ffffff;
+  border: 1px solid #d8e3f5;
+  border-left: 6px solid #0b3d91;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+}
+
+.did-you-know h2 {
+  font-family: Verdana, sans-serif;
+  color: #0b3d91;
+  margin-bottom: 10px;
+}
+
+.did-you-know p {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.did-you-know a {
+  color: #0b3d91;
+  font-weight: 600;
+}
+
 /* Modal styles */
 .modal {
   display: none;
