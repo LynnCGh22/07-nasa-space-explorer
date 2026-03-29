@@ -28,19 +28,39 @@ function countVideoEntries(items) {
   return items.filter((item) => item.media_type === 'video').length;
 }
 
+// Helper function to convert some common video links to embeddable links
+function getEmbeddableVideoUrl(videoUrl) {
+  try {
+    const parsedUrl = new URL(videoUrl);
+
+    // Convert YouTube watch links to embed links
+    if (parsedUrl.hostname.includes('youtube.com') && parsedUrl.searchParams.get('v')) {
+      const videoId = parsedUrl.searchParams.get('v');
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    // Convert youtu.be short links to embed links
+    if (parsedUrl.hostname.includes('youtu.be')) {
+      const videoId = parsedUrl.pathname.replace('/', '');
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    return videoUrl;
+  } catch (error) {
+    return videoUrl;
+  }
+}
+
 // Function to render the gallery with images
 function renderGallery(items) {
   // Clear the gallery
   gallery.innerHTML = '';
-  
-  // Filter to only show image entries (some APOD entries are videos)
-  const imageItems = items.filter((item) => item.media_type === 'image');
-  
-  // Check if we have any images
-  if (imageItems.length === 0) {
+
+  // Check if we have any entries to display
+  if (items.length === 0) {
     gallery.innerHTML = `
       <div class="placeholder">
-        <p>No images found in this date range. Try different dates.</p>
+        <p>No APOD entries found in this date range. Try different dates.</p>
       </div>
     `;
     return;
@@ -51,20 +71,27 @@ function renderGallery(items) {
   if (videoCount > 0) {
     gallery.innerHTML += `
       <div class="placeholder">
-        <p>${videoCount} entr${videoCount === 1 ? 'y is' : 'ies are'} video${videoCount === 1 ? '' : 's'} in this date range. Click an image to see details.</p>
+        <p>${videoCount} entr${videoCount === 1 ? 'y is' : 'ies are'} video${videoCount === 1 ? '' : 's'} in this date range. Click any card to see details.</p>
       </div>
     `;
   } 
   
-  // Loop through each image and create a gallery item
-  imageItems.forEach((item) => {
+  // Loop through each APOD item (image or video) and create a gallery item
+  items.forEach((item) => {
     const galleryItem = document.createElement('div');
     galleryItem.className = 'gallery-item';
+
+    // Use image URL for images and thumbnail URL for videos when available
+    const previewUrl = item.media_type === 'video' ? item.thumbnail_url : item.url;
+    const previewElement = previewUrl
+      ? `<img src="${previewUrl}" alt="${item.title}" class="gallery-image" />`
+      : `<div class="gallery-video-fallback">Video Preview</div>`;
+
     galleryItem.innerHTML = `
-      <img src="${item.url}" alt="${item.title}" class="gallery-image" />
+      ${previewElement}
       <div class="gallery-info">
         <h3>${item.title}</h3>
-        <p>${item.date}</p>
+        <p>${item.date} ${item.media_type === 'video' ? '• Video' : '• Image'}</p>
       </div>
     `;
     gallery.appendChild(galleryItem);
@@ -73,22 +100,39 @@ function renderGallery(items) {
   // Add click listeners to each gallery item to show the modal
   document.querySelectorAll('.gallery-item').forEach((item, index) => {
     item.addEventListener('click', () => {
-      showImageModal(imageItems[index]);
+      showMediaModal(items[index]);
     });
   });
 }
 
-// Function to show the modal with image details
-function showImageModal(imageData) {
-  // Update modal content with the image data
-  modalImage.src = imageData.url;
-  modalTitle.textContent = imageData.title;
-  modalDate.textContent = imageData.date;
-  modalYear.textContent = new Date(imageData.date).getFullYear();
-  modalExplanation.textContent = imageData.explanation;
+// Function to show the modal with image or video details
+function showMediaModal(mediaData) {
+  // Show an embedded video when APOD entry is a video
+  if (mediaData.media_type === 'video') {
+    modalImage.style.display = 'none';
+    modalImage.src = '';
+    modalVideo.style.display = 'block';
+    modalVideo.src = getEmbeddableVideoUrl(mediaData.url);
+  } else {
+    modalVideo.style.display = 'none';
+    modalVideo.src = '';
+    modalImage.style.display = 'block';
+    modalImage.src = mediaData.url;
+  }
+
+  modalTitle.textContent = mediaData.title;
+  modalDate.textContent = mediaData.date;
+  modalYear.textContent = new Date(mediaData.date).getFullYear();
+  modalExplanation.textContent = mediaData.explanation;
   
   // Show the modal
   imageModal.style.display = 'block';
+}
+
+// Helper function to close modal and stop any playing video
+function closeModal() {
+  imageModal.style.display = 'none';
+  modalVideo.src = '';
 }
 
 // Function to fetch and render images from NASA APOD API
@@ -113,7 +157,7 @@ async function fetchAndRenderApodImages() {
   `;
   
   // Build the NASA API URL with the selected dates
-  const url = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&start_date=${startDate}&end_date=${endDate}`;
+  const url = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&start_date=${startDate}&end_date=${endDate}&thumbs=true`;
   
   try {
     // Fetch data from the NASA API
@@ -153,13 +197,13 @@ getImagesButton.addEventListener('click', fetchAndRenderApodImages);
 
 // Close modal when the close button is clicked
 modalCloseButton.addEventListener('click', () => {
-  imageModal.style.display = 'none';
+  closeModal();
 });
 
 // Close modal when clicking outside the modal content
 window.addEventListener('click', (event) => {
   if (event.target === imageModal) {
-    imageModal.style.display = 'none';
+    closeModal();
   }
 });
 
