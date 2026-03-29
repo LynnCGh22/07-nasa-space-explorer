@@ -14,6 +14,7 @@ setupDateInputs(startInput, endInput);
 const getImagesButton = document.getElementById('getImagesButton');
 const gallery = document.getElementById('gallery');
 // Display Image Elements (Year, Title, Explanation, etc.)
+const imageModal = document.getElementById('imageModal');
 const modalImage = document.getElementById('modalImage');
 const modalTitle = document.getElementById('modalTitle');
 const modalDate = document.getElementById('modalDate');
@@ -21,95 +22,65 @@ const modalYear = document.getElementById('modalYear');
 const modalExplanation = document.getElementById('modalExplanation');
 const modalCloseButton = document.getElementById('modalCloseButton');
 
-// Function to show the modal with image details
-function showImageModal(imageData) {
-  fetch(`https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&date=${imageData.date}`)
-    .then(response => response.json())
-    .then(data => {
-      if(data.Response === 'True') {
-      modalImage.src = data.url;
-      modalTitle.textContent = data.title;
-      modalDate.textContent = data.date;
-      modalYear.textContent = new Date(data.date).getFullYear();
-      modalExplanation.textContent = data.explanation;
-      }
-      else {
-        alert('Sorry, we could not load the image details. Please try again later.');
-      }
-    });
-  }
-
-// Function to fetch and render images, then add click listeners to show the modal
-async function fetchAndRenderApodImages() {
-  const startDate = startInput.value;
-  const endDate = endInput.value;
-  const url = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&start_date=${startDate}&end_date=${endDate}`;
-  if (!startDate || !endDate) {
+// Function to render the gallery with images
+function renderGallery(items) {
+  // Clear the gallery
+  gallery.innerHTML = '';
+  
+  // Filter to only show image entries (some APOD entries are videos)
+  const imageItems = items.filter((item) => item.media_type === 'image');
+  
+  // Check if we have any images
+  if (imageItems.length === 0) {
     gallery.innerHTML = `
       <div class="placeholder">
-        <p>Please select both start and end dates.</p>
+        <p>No images found in this date range. Try different dates.</p>
       </div>
     `;
     return;
   }
-  try {
-    const response = await fetch(url);
-    
-    if (!response.ok) {
-      throw new Error(`Request failed with status ${response.status}`);
-    }
-    const apodData = await response.json();
-
-    if(apodData.Response === 'True') {
-      const items = Array.isArray(apodData) ? apodData : [apodData];
-      items.sort((a, b) => new Date(b.date) - new Date(a.date));
-      renderGallery(items);
-      // Add click listeners to each gallery item to show the modal
-      document.querySelectorAll('.gallery-item').forEach((item, index) => {
-        item.addEventListener('click', () => {
-          showImageModal(items[index]);
-        });
-      });
-    }
-    else {
-      throw new Error('API response was not successful');
-    }
-
-  } catch (error) {
-    console.error('Error fetching APOD images:', error);
-    gallery.innerHTML = `
-      <div class="placeholder">
-        <p>Sorry, we could not load images right now. Please try again.</p>
+  
+  // Loop through each image and create a gallery item
+  imageItems.forEach((item) => {
+    const galleryItem = document.createElement('div');
+    galleryItem.className = 'gallery-item';
+    galleryItem.innerHTML = `
+      <img src="${item.url}" alt="${item.title}" class="gallery-image" />
+      <div class="gallery-info">
+        <h3>${item.title}</h3>
+        <p>${item.date}</p>
       </div>
     `;
-
-  } 
+    gallery.appendChild(galleryItem);
+  });
+  
+  // Add click listeners to each gallery item to show the modal
+  document.querySelectorAll('.gallery-item').forEach((item, index) => {
+    item.addEventListener('click', () => {
+      showImageModal(imageItems[index]);
+    });
+  });
 }
 
-// Close modal
-modalCloseButton.addEventListener('click', () => {
-  modalImage.src = '';
-  modalTitle.textContent = '';
-  modalDate.textContent = '';
-  modalYear.textContent = '';
-  modalExplanation.textContent = '';
-});
+// Function to show the modal with image details
+function showImageModal(imageData) {
+  // Update modal content with the image data
+  modalImage.src = imageData.url;
+  modalTitle.textContent = imageData.title;
+  modalDate.textContent = imageData.date;
+  modalYear.textContent = new Date(imageData.date).getFullYear();
+  modalExplanation.textContent = imageData.explanation;
+  
+  // Show the modal
+  imageModal.style.display = 'block';
+}
 
-// Load images when the button is clicked.
-getImagesButton.addEventListener('click', () => {
-  fetchAndRenderApodImages();
-});
-
-// Update renderImages to include details buttons
-
-// Optional: load images immediately for the default date range.
-fetchAndRenderApodImages();
-
-// Fetch APOD data for the selected date range, then render it.
+// Function to fetch and render images from NASA APOD API
 async function fetchAndRenderApodImages() {
   const startDate = startInput.value;
   const endDate = endInput.value;
-
+  
+  // Check if both dates are selected
   if (!startDate || !endDate) {
     gallery.innerHTML = `
       <div class="placeholder">
@@ -118,32 +89,41 @@ async function fetchAndRenderApodImages() {
     `;
     return;
   }
-
+  
+  // Show loading message
   gallery.innerHTML = `
     <div class="placeholder">
       <p>Loading NASA images...</p>
     </div>
   `;
-
+  
+  // Build the NASA API URL with the selected dates
   const url = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&start_date=${startDate}&end_date=${endDate}`;
-
+  
   try {
+    // Fetch data from the NASA API
     const response = await fetch(url);
-
+    
+    // Check if the response is ok (status code 200-299)
     if (!response.ok) {
       throw new Error(`Request failed with status ${response.status}`);
     }
-
+    
+    // Parse the JSON response
     const apodData = await response.json();
-
-    // APOD can return a single object or an array depending on the query.
-    const items = Array.isArray(apodData) ? apodData : [apodData];
-
-    // Show newest entries first for a more natural gallery experience.
-    items.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    renderGallery(items);
+    
+    // NASA APOD API returns an array of images
+    if (Array.isArray(apodData) && apodData.length > 0) {
+      // Sort images by date (newest first)
+      apodData.sort((a, b) => new Date(b.date) - new Date(a.date));
+      renderGallery(apodData);
+    }
+    else {
+      throw new Error('No images found for the selected date range');
+    }
+    
   } catch (error) {
+    // Log the error to the console for debugging
     console.error('Error fetching APOD images:', error);
     gallery.innerHTML = `
       <div class="placeholder">
@@ -153,34 +133,22 @@ async function fetchAndRenderApodImages() {
   }
 }
 
-// Build the gallery cards and only render entries that are actual images.
-function renderGallery(items) {
-  const imageItems = items.filter((item) => item.media_type === 'image');
+// Add click event listener to the button to fetch images
+getImagesButton.addEventListener('click', fetchAndRenderApodImages);
 
-  if (imageItems.length === 0) {
-    gallery.innerHTML = `
-      <div class="placeholder">
-        <p>No image results in this date range. Try different dates.</p>
-      </div>
-    `;
-    return;
+// Close modal when the close button is clicked
+modalCloseButton.addEventListener('click', () => {
+  imageModal.style.display = 'none';
+});
+
+// Close modal when clicking outside the modal content
+window.addEventListener('click', (event) => {
+  if (event.target === imageModal) {
+    imageModal.style.display = 'none';
   }
+});
 
-  gallery.innerHTML = '';
-
-  imageItems.forEach((item) => {
-    const card = document.createElement('article');
-    card.className = 'gallery-item';
-
-    card.innerHTML = `
-      <img src="${item.url}" alt="${item.title}">
-      <p><strong>${item.title}</strong></p>
-      <p>${item.date}</p>
-      <p>${item.explanation}</p>
-    `;
-
-    gallery.appendChild(card);
-  });
-}
+// Load images immediately for the default date range when the page loads
+fetchAndRenderApodImages();
 
 
