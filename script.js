@@ -17,8 +17,7 @@ const closeModalButton = document.getElementById('close-modal');
 // Keeping your "searchInput" style so Enter-key logic matches your original approach.
 const searchInput = startInput;
 
-// NASA API key (restored from your original file).
-// You can switch to 'DEMO_KEY' if needed.
+//Display NASA API key
 const nasaApiKey = '4wfLNaAe3mRo64uI1gj9LgvbJQbeyJ5kmWIb4iOM';
 
 // Set date limits and default range (last 9 days including today).
@@ -183,3 +182,10 @@ function ShowImageDetails(image) {
 function showImageDetails(image) {
 	ShowImageDetails(image);
 }
+
+// Add a hover zoom effect to gallery images.
+gallery.addEventListener('mouseover', (event) => {
+  if (event.target.tagName === 'IMG') {
+    event.target.style.transform = 'scale(1.05)';
+  }
+});
