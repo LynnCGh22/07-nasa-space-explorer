@@ -20,6 +20,9 @@ const modalTitle = document.getElementById('modalTitle');
 const modalDate = document.getElementById('modalDate');
 const modalYear = document.getElementById('modalYear');
 const modalExplanation = document.getElementById('modalExplanation');
+const modalVideoMessage = document.getElementById('modalVideoMessage');
+const modalVideoLinkWrap = document.getElementById('modalVideoLinkWrap');
+const modalVideoLink = document.getElementById('modalVideoLink');
 const modalCloseButton = document.getElementById('modalCloseButton');
 const modalVideo = document.getElementById('modalVideo');
 
@@ -45,9 +48,11 @@ function getEmbeddableVideoUrl(videoUrl) {
       return `https://www.youtube.com/embed/${videoId}`;
     }
 
-    return videoUrl;
+    // Most other providers (including many apod.nasa.gov pages) block iframe embed.
+    // Return null so we can show a thumbnail + external link fallback.
+    return null;
   } catch (error) {
-    return videoUrl;
+    return null;
   }
 }
 
@@ -107,12 +112,33 @@ function renderGallery(items) {
 
 // Function to show the modal with image or video details
 function showMediaModal(mediaData) {
+  modalVideoMessage.style.display = 'none';
+  modalVideoMessage.textContent = '';
+  modalVideoLinkWrap.style.display = 'none';
+  modalVideoLink.href = '#';
+
   // Show an embedded video when APOD entry is a video
   if (mediaData.media_type === 'video') {
+    const embeddableVideoUrl = getEmbeddableVideoUrl(mediaData.url);
+
     modalImage.style.display = 'none';
     modalImage.src = '';
-    modalVideo.style.display = 'block';
-    modalVideo.src = getEmbeddableVideoUrl(mediaData.url);
+
+    if (embeddableVideoUrl) {
+      modalVideo.style.display = 'block';
+      modalVideo.src = embeddableVideoUrl;
+    } else {
+      // If iframe embed is not supported, show thumbnail image instead.
+      modalVideo.style.display = 'none';
+      modalVideo.src = '';
+      modalImage.style.display = 'block';
+      modalImage.src = mediaData.thumbnail_url || '';
+
+      modalVideoMessage.style.display = 'block';
+      modalVideoMessage.textContent = 'This video cannot be embedded here, but you can still open it in a new tab.';
+      modalVideoLinkWrap.style.display = 'block';
+      modalVideoLink.href = mediaData.url;
+    }
   } else {
     modalVideo.style.display = 'none';
     modalVideo.src = '';
@@ -133,6 +159,8 @@ function showMediaModal(mediaData) {
 function closeModal() {
   imageModal.style.display = 'none';
   modalVideo.src = '';
+  modalVideoMessage.style.display = 'none';
+  modalVideoLinkWrap.style.display = 'none';
 }
 
 // Function to fetch and render images from NASA APOD API
