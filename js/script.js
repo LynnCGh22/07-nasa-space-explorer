@@ -21,6 +21,23 @@ const modalYear = document.getElementById('modalYear');
 const modalExplanation = document.getElementById('modalExplanation');
 const modalCloseButton = document.getElementById('modalCloseButton');
 
+// Function to show the modal with image details
+function showImageModal(imageData) {
+  fetch(`https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&date=${imageData.date}`)
+    .then(response => response.json())
+    .then(data => {
+      if(data.Response === 'True') {
+      modalImage.src = data.url;
+      modalTitle.textContent = data.title;
+      modalDate.textContent = data.date;
+      modalYear.textContent = new Date(data.date).getFullYear();
+      modalExplanation.textContent = data.explanation;
+      }
+      else {
+        alert('Sorry, we could not load the image details. Please try again later.');
+      }
+    });
+  }
 
 // Load images when the button is clicked.
 getImagesButton.addEventListener('click', () => {
