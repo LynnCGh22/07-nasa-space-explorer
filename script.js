@@ -73,3 +73,27 @@ window.addEventListener('click', (event) => {
         modal.style.display = 'none';
     }
 });
+
+// Close Modal on Escape Key Press - Listen for the Escape key press to close the modal.
+window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+        modal.style.display = 'none';
+    }
+});
+
+// Allow the "Get Images" button to be triggered by clicking the button.
+searchForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const year = searchInput.value.trim();
+    if (year) {
+        fetchNasaImages(year);
+    }
+});
+
+// Allow the "Get Images" button to be triggered by pressing the Enter key when the year input field is focused.
+searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        searchForm.dispatchEvent(new Event('submit'));
+    }
+});
