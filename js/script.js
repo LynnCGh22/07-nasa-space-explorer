@@ -52,12 +52,38 @@ async function fetchAndRenderApodImages() {
     `;
     return;
   }
-  
-  gallery.innerHTML = `
-    <div class="placeholder">
-      <p>Loading NASA images...</p>
-    </div>
-  `;
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const apodData = await response.json();
+
+    if(apodData.Response === 'True') {
+      const items = Array.isArray(apodData) ? apodData : [apodData];
+      items.sort((a, b) => new Date(b.date) - new Date(a.date));
+      renderGallery(items);
+      // Add click listeners to each gallery item to show the modal
+      document.querySelectorAll('.gallery-item').forEach((item, index) => {
+        item.addEventListener('click', () => {
+          showImageModal(items[index]);
+        });
+      });
+    }
+    else {
+      throw new Error('API response was not successful');
+    }
+
+  } catch (error) {
+    console.error('Error fetching APOD images:', error);
+    gallery.innerHTML = `
+      <div class="placeholder">
+        <p>Sorry, we could not load images right now. Please try again.</p>
+      </div>
+    `;
+
+  } 
 }
 
 // Close modal
