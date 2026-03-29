@@ -38,6 +38,28 @@ function showImageModal(imageData) {
       }
     });
   }
+
+// Function to fetch and render images, then add click listeners to show the modal
+async function fetchAndRenderApodImages() {
+  const startDate = startInput.value;
+  const endDate = endInput.value;
+  const url = `https://api.nasa.gov/planetary/apod?api_key=${nasaApiKey}&start_date=${startDate}&end_date=${endDate}`;
+  if (!startDate || !endDate) {
+    gallery.innerHTML = `
+      <div class="placeholder">
+        <p>Please select both start and end dates.</p>
+      </div>
+    `;
+    return;
+  }
+  
+  gallery.innerHTML = `
+    <div class="placeholder">
+      <p>Loading NASA images...</p>
+    </div>
+  `;
+}
+
 // Close modal
 modalCloseButton.addEventListener('click', () => {
   modalImage.src = '';
