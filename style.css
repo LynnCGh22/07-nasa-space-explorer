@@ -35,7 +35,7 @@ body.dark-mode {
 
 /* Base page styles with space-themed background */
 body {
-  font-family: Arial, sans-serif;
+  font-family: Helvetica, sans-serif;
   background-color: var(--bg-primary);
   background-image:
     /* Subtle gradient overlay */
@@ -120,7 +120,7 @@ main {
 }
 
 h1 {
-  font-family: Verdana, sans-serif;
+  font-family: Helvetica, sans-serif;
   font-weight: bold;
   color: var(--text-primary);
 }
@@ -160,7 +160,7 @@ label {
 /* Inputs and buttons */
 input[type="date"],
 button {
-  font-family: Arial, sans-serif;
+  font-family: Helvetica, sans-serif;
   font-weight: normal;
   color: var(--text-primary);
   padding: 10px 15px;
