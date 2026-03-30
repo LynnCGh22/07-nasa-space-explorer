@@ -303,4 +303,36 @@ fetchAndRenderApodImages();
 // Load a fun space fact when the page loads
 fetchAndRenderSpaceFact();
 
+// Theme Toggle - Light/Dark Mode
+// Get the theme toggle button and the body element
+const themeToggle = document.getElementById('themeToggle');
+const body = document.body;
+
+// Check if user has a saved theme preference in localStorage
+const savedTheme = localStorage.getItem('theme');
+
+// Apply saved theme or default to light mode
+if (savedTheme === 'dark') {
+  body.classList.add('dark-mode');
+  themeToggle.textContent = '☀️'; // Show sun icon when in dark mode
+} else {
+  body.classList.remove('dark-mode');
+  themeToggle.textContent = '🌙'; // Show moon icon when in light mode
+}
+
+// Add click event listener to toggle between light and dark modes
+themeToggle.addEventListener('click', () => {
+  // Toggle dark-mode class on the body
+  body.classList.toggle('dark-mode');
+  
+  // Update the button icon based on the current mode
+  if (body.classList.contains('dark-mode')) {
+    themeToggle.textContent = '☀️'; // Show sun icon to let user switch to light mode
+    localStorage.setItem('theme', 'dark'); // Save preference
+  } else {
+    themeToggle.textContent = '🌙'; // Show moon icon to let user switch to dark mode
+    localStorage.setItem('theme', 'light'); // Save preference
+  }
+});
+
 
